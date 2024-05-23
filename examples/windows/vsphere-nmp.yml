@@ -1,0 +1,14 @@
+# Monitor a single file or multiple files in a directory
+# SELECT ArrayPriority, Device, DeviceDisplayName, GroupState, Path, PathSelectionPolicyPathConfig, RuntimeName, StorageArrayTypePathConfig FROM VSphereNMPSample LIMIT MAX SINCE 5 MINUTES AGO
+# Example for NRQL Alert: SELECT * FROM VSphereNMPSample
+integrations:
+  - name: nri-flex
+    interval: 30s # This is the Infrastructure agent polling interval for this Flex configuration, set to one poll every 30 seconds
+    config:
+      name: VSphereNMPSample
+      apis:
+        - event_type: VSphereNMPSample
+          shell: C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe
+          commands:
+            - run: Import-Module VMware.VimAutomation.Core;$vSphereServerName=myVsphereServer;Connect-VIServer $vSphereServerName;$paths=@();Get-VMHost|%{$vmHostName=$_.Name;$storagePaths=(Get-EsxCli -VMHost $_).Storage.Nmp.Path.List();foreach($path in $storagePaths){$paths+=@{VMServerName=$vSphereServerName;VMHostName=$vmHostName;ArrayPriority=$path.ArrayPriority;Device=$path.Device;DeviceDisplayName=$path.DeviceDisplayName;GroupState=$path.GroupState;Path=$path.Path;PathSelectionPolicyPathConfig=$path.PathSelectionPolicyPathConfig;RuntimeName=$path.RuntimeName;StorageArrayTypePathConfig=$path.StorageArrayTypePathConfig}}};$paths|ConvertTo-Json;Disconnect-VIServer -Confirm:$false;
+              set_header: [ArrayPriority, Device, DeviceDisplayName, GroupState, Path, PathSelectionPolicyPathConfig, RuntimeName, StorageArrayTypePathConfig]
