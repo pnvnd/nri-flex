@@ -1,0 +1,15 @@
+# This executes an external PowerShell script that gets vSphere Native Multipathing counters.
+---
+integrations:
+  - name: nri-flex
+    interval: 30s
+    config:
+      name: VSphereNMPSample
+      lookup_file: "C:\\Program Files\\New Relic\\newrelic-infra\\integrations.d\\vSphere_nmp.json"
+      apis:
+        - event_type: VSphereNMPSample
+          shell: powershell
+          timeout: 30000
+          commands:
+            # This is using the results of the above command to loop through as parameters for the health check script
+            - run: "& \"C:/Program Files/New Relic/newrelic-infra/integrations.d/vSphere_nmp.ps1\" -vSphereServerName ${lf:server} -vSphereUsername ${lf:username} -vSpherePassword ${lf:password}"
