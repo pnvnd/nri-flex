@@ -8,7 +8,7 @@ integrations:
       name: VSphereNMPSample
       apis:
         - event_type: VSphereNMPSample
-          shell: C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe
+          shell: powershell
           commands:
-            - run: Import-Module VMware.VimAutomation.Core;$vSphereServerName=myVsphereServer;Connect-VIServer $vSphereServerName;$paths=@();Get-VMHost|%{$vmHostName=$_.Name;$storagePaths=(Get-EsxCli -VMHost $_).Storage.Nmp.Path.List();foreach($path in $storagePaths){$paths+=@{VMServerName=$vSphereServerName;VMHostName=$vmHostName;ArrayPriority=$path.ArrayPriority;Device=$path.Device;DeviceDisplayName=$path.DeviceDisplayName;GroupState=$path.GroupState;Path=$path.Path;PathSelectionPolicyPathConfig=$path.PathSelectionPolicyPathConfig;RuntimeName=$path.RuntimeName;StorageArrayTypePathConfig=$path.StorageArrayTypePathConfig}}};$paths|ConvertTo-Json;Disconnect-VIServer -Confirm:$false;
-              set_header: [ArrayPriority, Device, DeviceDisplayName, GroupState, Path, PathSelectionPolicyPathConfig, RuntimeName, StorageArrayTypePathConfig]
+            - run: "Import-Module VMware.VimAutomation.Core;$vSphereServerName=myVsphereServer;Connect-VIServer $vSphereServerName;$paths=@();Get-VMHost|%{$vmHostName=$_.Name;$storagePaths=(Get-EsxCli -VMHost $_).Storage.Nmp.Path.List();foreach($path in $storagePaths){$paths+=@{VMServerName=$vSphereServerName;VMHostName=$vmHostName;ArrayPriority=$path.ArrayPriority;Device=$path.Device;DeviceDisplayName=$path.DeviceDisplayName;GroupState=$path.GroupState;Path=$path.Path;PathSelectionPolicyPathConfig=$path.PathSelectionPolicyPathConfig;RuntimeName=$path.RuntimeName;StorageArrayTypePathConfig=$path.StorageArrayTypePathConfig}}};$paths|ConvertTo-Json;Disconnect-VIServer -Confirm:$false;"
+            
