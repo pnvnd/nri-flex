@@ -14,9 +14,12 @@ integrations:
             - run: >
                 Import-Module VMware.VimAutomation.Core;
                 
-                $vSphereServerName=myVsphereServer;
-                
-                Connect-VIServer -Server $vSphereServerName -Port 9090 -User user -Password pass -Force | out-null;
+                $vCenterServer="127.0.0.1";
+                $vCenterPort="9090";
+                $vCenterUser="user";
+                $vCenterPassword="pass";
+
+                Connect-VIServer -Server $vCenterServer -Port $vCenterPort -User $vCenterUser -Password $vCenterPassword -Force | Out-Null;
                 
                 $paths=@();
                 
@@ -45,4 +48,5 @@ integrations:
                     }
                   }
                 };
+                
                 $paths | ConvertTo-Json;
