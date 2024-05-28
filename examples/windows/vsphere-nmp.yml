@@ -3,13 +3,46 @@
 # Example for NRQL Alert: SELECT * FROM VSphereNMPSample
 integrations:
   - name: nri-flex
-    interval: 30s # This is the Infrastructure agent polling interval for this Flex configuration, set to one poll every 30 seconds
+    interval: 300s # This is the Infrastructure agent polling interval for this Flex configuration, set to one poll every 300 seconds
     config:
       name: VSphereNMPSample
       apis:
         - event_type: VSphereNMPSample
           shell: powershell
-          timeout: 30000
+          timeout: 300000
           commands:
-            - run: "Import-Module VMware.VimAutomation.Core;$vSphereServerName=\"myVsphereServer\";Connect-VIServer -Server $vSphereServerName -User \"username\" -Password \"password\" | out-null;$paths=@();Get-VMHost|%{$vmHostName=$_.Name;$storagePaths=(Get-EsxCli -VMHost $_).Storage.Nmp.Path.List();foreach($path in $storagePaths){$paths+=@{VMServerName=$vSphereServerName;VMHostName=$vmHostName;ArrayPriority=$path.ArrayPriority;Device=$path.Device;DeviceDisplayName=$path.DeviceDisplayName;GroupState=$path.GroupState;Path=$path.Path;PathSelectionPolicyPathConfig=$path.PathSelectionPolicyPathConfig;RuntimeName=$path.RuntimeName;StorageArrayTypePathConfig=$path.StorageArrayTypePathConfig}}};$paths|ConvertTo-Json"
-            
+            - run: >
+                Import-Module VMware.VimAutomation.Core;
+                
+                $vSphereServerName=myVsphereServer;
+                
+                Connect-VIServer -Server $vSphereServerName -Port 9090 -User user -Password pass -Force | out-null;
+                
+                $paths=@();
+                
+                # Loop through each VM host
+                Get-VMHost | ForEach-Object {
+                  # Get the name of the current VM host
+                  $vmHostName = $_.Name
+                  
+                  # Get the storage paths for the current VM host
+                  $storagePaths = (Get-EsxCli -VMHost $_).Storage.Nmp.Path.List()
+                  
+                  # Loop through each storage path
+                  foreach ($path in $storagePaths) {
+                    # Add the path information to the array
+                    $paths += @{
+                      VMServerName = $vSphereServerName
+                      VMHostName = $vmHostName
+                      ArrayPriority = $path.ArrayPriority
+                      Device = $path.Device
+                      DeviceDisplayName = $path.DeviceDisplayName
+                      GroupState = $path.GroupState
+                      Path = $path.Path
+                      PathSelectionPolicyPathConfig = $path.PathSelectionPolicyPathConfig
+                      RuntimeName = $path.RuntimeName
+                      StorageArrayTypePathConfig = $path.StorageArrayTypePathConfig
+                    }
+                  }
+                };
+                $paths | ConvertTo-Json;
