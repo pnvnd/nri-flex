@@ -1,0 +1,27 @@
+integrations:
+  - name: nri-flex
+    interval: 30s
+    config:
+      name: ibmmq
+      apis:
+        - event_type: ibmmq_status
+          commands:
+            - run: dspmq
+              split: horizontal
+              set_header: [qname,status]
+              regex_match: true
+              split_by: \w+\((.*?)\)\s+\w+\((.*?)\)
+
+  - name: nri-flex
+    interval: 30s
+    config:
+      name: ibmmq
+      apis:
+        - event_type: ibmmq_queue_depth
+          commands:
+            - run: >-
+                echo "dis ql(*) CURDEPTH" | runmqsc | grep -E 'QUEUE\(|CURDEPTH\(' | sed 's/TYPE(QLOCAL)//' | sed 's/ *//g' | awk 'NR%2{printf "%s ",$0;next;}1'
+              split: horizontal
+              set_header: [queue,curdepth]
+              regex_match: true
+              split_by: \w+\((.*?)\)\s+\w+\((.*?)\)
